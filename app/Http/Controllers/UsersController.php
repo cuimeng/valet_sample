@@ -43,7 +43,11 @@ class UsersController extends Controller
 
     public function show(User $user)
     {
-    	return view('users.show', compact('user'));
+    	$statuses = $user->statuses()
+    						->orderBy('created_at', 'desc')
+    						->paginate(30);
+
+    	return view('users.show', compact('user', 'statuses'));
     }
 
     public function store(Request $request)
@@ -75,13 +79,6 @@ class UsersController extends Controller
         Mail::send($view, $data, function ($message) use ($to, $subject) {
             $message->to($to)->subject($subject);
         });
-    }
-
-    public function destroy()
-    {
-    	Auth::logout();
-    	session()->flash('success', '您已成功退出');
-    	return redirect(route('login'));
     }
 
     public function edit(User $user)
